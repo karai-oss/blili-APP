@@ -3,9 +3,12 @@ package com.github.bliblipanel.ui.page.Home.HomePage
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 
@@ -26,23 +29,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.RecomposeScope
+import androidx.compose.runtime.currentRecomposeScope
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -70,30 +73,40 @@ import java.time.format.DateTimeFormatter
  */
 
 
-class HomePage(var mContext: Context?) : IHomePageView {
+class HomePage : IHomePageView {
 
+    var mContext  : Context? = null;
     var username = mutableStateOf("")
     var cover = mutableStateOf("")
     var noticeMessageList = mutableStateOf(listOf<Item>())
+    var fenItemListData  =  mutableStateOf(listOf<UserListItem>());
 
-    constructor() : this(null)
 
     val homePagePresenter by lazy {
         HomePresenter(this, HomePageModel());
+
     }
 
-    @SuppressLint("SuspiciousIndentation")
-    @Preview()
-    @Composable
-    fun HomeView(
 
-    ) {
+    constructor(mContext: Context?) {
+       this.mContext = mContext;
+        loadData();
+    }
 
-        // page 滑动
-        val scrollstate = rememberScrollState()
+
+
+    fun loadData(){
         var sharedPreferences = mContext?.let {
             it.getSharedPreferences(APP_STORAGE_NAME, Context.MODE_PRIVATE)
         } ?: TODO("mContext is null")
+
+        // 初始化粉丝数据
+        homePagePresenter.initFenData(
+            sharedPreferences.getString(KEY_MID_STORAGE, ""),
+            sharedPreferences.getString(KEY_SESSION_DATA, "")
+        )
+
+
         // 初始化用户数据
         homePagePresenter.initUserInfo(
             sharedPreferences.getString(KEY_MID_STORAGE, ""),
@@ -106,12 +119,22 @@ class HomePage(var mContext: Context?) : IHomePageView {
             sharedPreferences.getString(KEY_SESSION_DATA, "")
         )
 
-        // 初始化粉丝数据
+
+    }
 
 
+    @SuppressLint("SuspiciousIndentation")
+    @Composable
+    override fun Screen(
+
+    ) {
+
+        // page 滑动
+        val scrollstate = rememberScrollState()
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+           var  recompose = currentRecomposeScope
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -125,15 +148,19 @@ class HomePage(var mContext: Context?) : IHomePageView {
                         )
                     )
             ) {
-                UserInfoPanel(
-                    modifier = Modifier
-                        .offset(x = 10.dp, y = 40.dp)
-                );
+
                 Column(
-                    modifier = Modifier.
-                    fillMaxHeight()
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .height(100.dp)
                         .verticalScroll(scrollstate)
+
                 ) {
+                    UserInfoPanel(
+                        modifier = Modifier
+                            .offset(x = 10.dp, y = 40.dp)
+                    );
+                    // 面板信息
                     Row(
                         modifier = Modifier.offset(y = 100.dp)
                     ) {
@@ -152,6 +179,21 @@ class HomePage(var mContext: Context?) : IHomePageView {
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                     }
+
+                    if (fenItemListData.value.isNotEmpty()){
+                        Spacer(modifier = Modifier.height(100.dp))
+                        // 粉丝列表
+                        for (i in 0..fenItemListData.value.size-1) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            FenPanel(
+                                fenItemData = fenItemListData.value[i],
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                        }
+                    }else{
+                        recompose.invalidate()
+                    }
+
                 }
 
             }
@@ -214,7 +256,6 @@ class HomePage(var mContext: Context?) : IHomePageView {
 
     // 获取通知公告
     override fun earnNoticeMessage(message: List<Item>) {
-        Log.e("TAG", "earnNoticeMessage: $message")
         noticeMessageList.value = message;
     }
 
@@ -226,10 +267,12 @@ class HomePage(var mContext: Context?) : IHomePageView {
 
     //获取粉丝相关数据
     override fun getFenListSuccess(list: List<UserListItem>) {
-        TODO("Not yet implemented")
+        this.fenItemListData.value = list;
     }
 
 
+
+    // 界面销毁
     override fun distoryLoadingView() {
 
     }
@@ -238,6 +281,7 @@ class HomePage(var mContext: Context?) : IHomePageView {
 /**
  * 数据面板
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DataPanel(
     isNotice: Boolean = false,
@@ -256,6 +300,7 @@ fun DataPanel(
 
             .then(modifier)
     ) {
+
 
 
         Column(
@@ -308,68 +353,86 @@ fun DataPanel(
 
 @Preview(showBackground = true)
 @Composable
-fun FenPanel(){
+fun FenPanel(
+    fenItemData : UserListItem? = null,
+    modifier: Modifier = Modifier
+){
     Column(
         modifier = Modifier
             .height(240.dp)
-            .fillMaxWidth()
+            .width((LocalConfiguration.current.screenWidthDp * 0.95).dp)
+            .clip(RoundedCornerShape(10.dp))
             .background(Color.White)
-            .padding(10.dp),
+            .border(1.dp, Color(0xFFf1f1f1))
+            .padding(10.dp)
+            .then(modifier)
 
     ) {
-        Box(
-            Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.CenterStart,
-        ) {
 
-            // 粉丝头像
-            Image(
-                painter = painterResource(id = R.drawable.home_select),
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .clip(RoundedCornerShape(25.dp)),
-                contentDescription = "粉丝图片"
-            )
-            // 上行中间
-            Column(
-                modifier = Modifier.absoluteOffset(x = 70.dp)
+        if (fenItemData != null)
+            Box(
+                Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart,
             ) {
-                Text(
-                    text = "用户名称",
-                    fontFamily = FANG_SONG,
-                    fontSize = TextUnit(15f, TextUnitType.Sp)
-                )
-                Spacer(modifier = Modifier.height(10.dp))
 
-                Text(
-                    text = "用户名称",
-                    fontFamily = FANG_SONG,
-                    color = Color(0xFFE4E4E4),
-                    fontSize = TextUnit(10f, TextUnitType.Sp)
-                )
-            }
-
-
-            // 日期
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            ) {
+                // 粉丝头像
                 Image(
-                    painter = painterResource(id = R.drawable.date),
-                    modifier = Modifier.size(20.dp),
-                    contentDescription = "时间"
+                    painter =rememberAsyncImagePainter(model = fenItemData.face , onLoading = {
+                        R.drawable.blbl
+                    }, onError = {
+                       R.drawable.blbl
+                    }),
+                    modifier = Modifier
+                        .width(50.dp)
+                        .height(50.dp)
+                        .clip(RoundedCornerShape(25.dp)),
+                    contentDescription = "粉丝图片"
                 )
-                Text(
-                    text = "2022年10月11日",
-                    fontFamily = FANG_SONG,
-                    color = USER_TEXT_COLOR,
-                    fontSize = TextUnit(10f, TextUnitType.Sp)
-                )
+                // 上行中间
+                Column(
+                    modifier = Modifier.absoluteOffset(x = 70.dp)
+                ) {
+                    Text(
+                        text = fenItemData.uname,
+                        fontFamily = FANG_SONG,
+                        fontSize = TextUnit(15f, TextUnitType.Sp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
 
+                    Text(
+                        text = if (fenItemData.sign.isEmpty()) "暂无签名"
+                        else
+                            if (fenItemData.sign.length > 6) fenItemData.sign.substring(0 , 5)+"..." else fenItemData.sign,
+                        fontFamily = FANG_SONG,
+                        color = Color(0xFFE4E4E4),
+                        fontSize = TextUnit(10f, TextUnitType.Sp)
+                    )
+                }
+
+
+                // 日期
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.date),
+                        modifier = Modifier.size(20.dp),
+                        contentDescription = "时间"
+                    )
+                    
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "2022年10月11日",
+                        fontFamily = FANG_SONG,
+                        color = USER_TEXT_COLOR,
+                        fontSize = TextUnit(10f, TextUnitType.Sp)
+                    )
+
+                }
             }
-        }
+        else
+            TODO()
 
 
 

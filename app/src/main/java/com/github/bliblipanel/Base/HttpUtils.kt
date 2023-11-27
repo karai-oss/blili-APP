@@ -9,6 +9,7 @@ import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.internal.http2.Header
+import kotlin.math.log
 
 
 var client = OkHttpClient();
@@ -58,6 +59,23 @@ suspend fun initNoticeData(
         return Gson().fromJson(userInfoJson.body?.let {
             it.string()
         } ,clazz)
+    }
+    return null;
+}
+
+suspend fun initFenData(
+    url : String ,
+    session : String,
+    clazz: Class<*>
+):Any?{
+    val fenJson = getRequestExetucor(url, session).execute()
+
+    if (fenJson.code === 200) {
+        return Gson().fromJson(fenJson.body?.let {
+            it.string()
+        } ,clazz)
+    }else{
+        return 0;
     }
     return null;
 }

@@ -1,5 +1,7 @@
 package com.github.bliblipanel.presenter.impl
 
+import android.util.Log
+import android.widget.Toast
 import com.github.bliblipanel.model.HomePageModel
 import com.github.bliblipanel.presenter.IHomePresenter
 import com.github.bliblipanel.view.IHomePageView
@@ -48,5 +50,26 @@ class HomePresenter(var homePageView : IHomePageView , var homePageModel : HomeP
                 }?.let { it1 -> homePageView.earnNoticeMessage(it1) }
             }
         }
+    }
+
+    /**
+     * 初始化粉丝数据
+     */
+    override fun initFenData(mid: String?, sessionData: String?) {
+
+        GlobalScope.launch {
+            sessionData?.let {
+                homePageModel.initFenData("/relation/fans?vmid=$mid&pn=1&ps=20&order=desc" ,
+                    it
+                )?.let {
+                    Log.e("TAG", "initFenData:$it " )
+                    homePageView.getFenListSuccess(it.data.list)
+                } ?: let {
+
+                    Log.e("TAG", "粉丝相关数据为null " )
+                }
+            }
+        }
+
     }
 }

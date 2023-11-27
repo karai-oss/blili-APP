@@ -1,11 +1,13 @@
 package com.github.bliblipanel.view
 
+import androidx.compose.runtime.Composable
 import com.github.bliblipanel.model.domain.Item
 import com.github.bliblipanel.model.domain.UserListItem
 
-interface IHomePageView {
+interface IHomePageView :IView {
 
     fun ShowLoadingView();
+
 
     // 获取通知公告 也就是消息
     fun earnNoticeMessage(message: List<Item>)

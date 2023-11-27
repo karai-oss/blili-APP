@@ -3,6 +3,8 @@ package com.github.bliblipanel.model
 import android.util.Log
 import com.github.bliblipanel.Base.getRequestExetucor
 import com.github.bliblipanel.model.domain.ReplyNoticeData
+import com.github.bliblipanel.model.domain.UserFenData
+import com.github.bliblipanel.model.domain.UserFenModel
 
 import com.github.bliblipanel.model.domain.UserInfoWrapperDoMain
 import okhttp3.Call
@@ -24,4 +26,18 @@ class HomePageModel {
     }
 
 
+    suspend fun initFenData(url: String, sessionData: String) : UserFenModel? {
+
+        val result = com.github.bliblipanel.Base.initFenData(
+            url = url, session = sessionData,
+            UserFenModel::class.java
+        )
+
+        Log.e("TAG", "initFenData11: $result" )
+
+        if (result == 0)
+            return null;
+        else
+            return result as UserFenModel
+    }
 }
