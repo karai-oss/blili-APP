@@ -40,4 +40,8 @@ class HomePageModel {
         else
             return result as UserFenModel
     }
+
+    suspend fun getFenVideoList(url : String ,sessionData : String){
+
+    }
 }

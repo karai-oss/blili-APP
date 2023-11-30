@@ -33,3 +33,10 @@ const val KEY_SESSION_DATA ="session data";
 const val KEY_IS_LOGIN = "IS_LOGIN"
 
 
+// 用户相关
+
+const val USER_COVER = "用户头像"
+
+const val USER_NAME = "用户名"
+
+

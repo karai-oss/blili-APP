@@ -2,7 +2,11 @@ package com.github.bliblipanel.presenter.impl
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.Composable
+import com.github.bliblipanel.Base.getRequest
 import com.github.bliblipanel.model.HomePageModel
+import com.github.bliblipanel.model.domain.FenWorkModel
+import com.github.bliblipanel.model.domain.VideoItem
 import com.github.bliblipanel.presenter.IHomePresenter
 import com.github.bliblipanel.view.IHomePageView
 import kotlinx.coroutines.GlobalScope
@@ -46,8 +50,9 @@ class HomePresenter(var homePageView : IHomePageView , var homePageModel : HomeP
                 sessionData!!,
             )?.let {
                 it.data?.let {
-                    it.items
-                }?.let { it1 -> homePageView.earnNoticeMessage(it1) }
+
+                    homePageView.earnNoticeMessage( it.items)
+                }
             }
         }
     }
@@ -71,5 +76,23 @@ class HomePresenter(var homePageView : IHomePageView , var homePageModel : HomeP
             }
         }
 
+    }
+
+
+    /**
+     * 获取粉丝视频作品列表
+     */
+
+    override fun initVideoList(mid: String?, sessionData: String? , callback :  (list: List<VideoItem>)->Unit) {
+        GlobalScope.launch {
+           ( getRequest("/space/wbi/arc/search?mid=$mid&special_type=&keyword=&order=pubdate" ,
+                sessionData!! , FenWorkModel::class.java) as FenWorkModel)
+                ?.let {
+                    if (it != null && it.data !=null && it.data.list!= null && it.data.list.vlist!= null){
+
+                        callback(it.data.list.vlist)
+                    }
+                }
+        }
     }
 }

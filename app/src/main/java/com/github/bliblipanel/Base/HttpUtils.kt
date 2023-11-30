@@ -82,6 +82,19 @@ suspend fun initFenData(
 
 
 
+suspend fun getRequest(
+    url : String ,
+    session : String,
+    clazz: Class<*>
+):Any?{
+    val userInfoJson = getRequestExetucor(url, session).execute()
 
+    if (userInfoJson.code === 200) {
+        return Gson().fromJson(userInfoJson.body?.let {
+            it.string()
+        } ,clazz)
+    }
+    return null;
+}
 
 

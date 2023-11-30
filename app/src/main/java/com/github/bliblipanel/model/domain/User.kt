@@ -1,5 +1,7 @@
 package com.github.bliblipanel.model.domain
 
+import kotlin.collections.List
+
 
 data class UserInfoWrapperDoMain(
     val code: Int,
@@ -128,7 +130,7 @@ data class UserHonourInfo(
     val colour: String,
     val is_latest_100honour: Int,
     val mid: Int,
-    val tags: List<Any>
+    val tags: kotlin.collections.List<Any>
 )
 
 data class Vip(

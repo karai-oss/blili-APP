@@ -1,5 +1,6 @@
 package com.github.bliblipanel.model.domain
 
+import kotlin.collections.List
 
 
 data class ReplyNoticeData(
@@ -11,7 +12,7 @@ data class ReplyNoticeData(
 
 data class ReplyData(
     val cursor: Cursor,
-    val items: List<Item>,
+    val items: kotlin.collections.List<ReplyItem>,
     val last_view_at: Int
 )
 
@@ -21,7 +22,7 @@ data class Cursor(
     val time: Int
 )
 
-data class Item(
+data class ReplyItem(
     val counts: Int,
     val id: Long,
     val is_multi: Int,
@@ -31,7 +32,7 @@ data class Item(
 )
 
 data class ItemX(
-    val at_details: List<AtDetail>,
+    val at_details: kotlin.collections.List<AtDetail>,
     val business: String,
     val business_id: Int,
     val danmu: Any,

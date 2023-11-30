@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,7 +50,7 @@ class Home(var mContext : Context) {
         }
 
 
-        Column(
+        Box(
             Modifier.fillMaxSize()
         ) {
             val recompose = currentRecomposeScope
@@ -68,6 +69,7 @@ class Home(var mContext : Context) {
             BottomAppBar(
                 containerColor = Color.White,
                 modifier = Modifier.height(60.dp)
+                    .align(Alignment.BottomCenter)
             ) {
 
                 pageList.forEach {
