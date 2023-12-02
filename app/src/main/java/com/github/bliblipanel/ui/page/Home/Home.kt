@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.github.bliblipanel.MainActivity
 import com.github.bliblipanel.R
 import com.github.bliblipanel.ui.page.Home.HomePage.HomePage
 import com.github.bliblipanel.ui.page.Home.Mine.MineCenterPage
@@ -37,7 +38,9 @@ class Home(var mContext : Context) {
 
 
     @Composable
-    fun startView(){
+    fun startView(
+        mainActivity: MainActivity
+    ){
 
         // 页面数据
 
@@ -45,7 +48,7 @@ class Home(var mContext : Context) {
         var pageList by remember {
             mutableStateOf( mutableListOf(
                 Page(0 , true, R.drawable.home_select, R.drawable.home_no_select , HomePage(mContext = mContext)),
-                Page(1 ,false, R.drawable.mine_select, R.drawable.mine_no_select , MineCenterPage(mContext = mContext))
+                Page(1 ,false, R.drawable.mine_select, R.drawable.mine_no_select , MineCenterPage(mContext = mContext , mAtivity = mainActivity))
             ))
         }
 

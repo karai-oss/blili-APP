@@ -46,7 +46,6 @@ class MIDPage(context: Context) : IMidView {
     }
     @SuppressLint("UnrememberedMutableState")
     @OptIn(ExperimentalMaterial3Api::class)
-    @Preview(showBackground = true)
     @Composable
     fun MID_Page(to : (target : String) -> Unit = {}){
 

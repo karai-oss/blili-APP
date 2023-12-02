@@ -57,9 +57,10 @@ class MainActivity : ComponentActivity() {
                     }
 
                     if (sharedPreferences.getBoolean(KEY_IS_LOGIN , false)){
-                        Home(this@MainActivity).startView()
+                        Home(this@MainActivity).startView(this@MainActivity)
                     }else {
                         if (pageName.equals(PAGE_GUIDE) ){
+
                             GuidePage()
                                 .GuidePage{
                                     pageName = it
@@ -80,7 +81,7 @@ class MainActivity : ComponentActivity() {
                                     }
                             }
                         }else if (pageName.equals(Home_PAGE)){
-                            Home(this@MainActivity).startView()
+                            Home(this@MainActivity).startView(this@MainActivity)
                         }
                     }
 

@@ -6,8 +6,16 @@ import androidx.compose.runtime.Composable
 interface IMineCenterView : IView{
 
 
-    fun loadData(mContext: Context?);
 
+      @Composable
+       override fun Screen() {
+
+       }
+
+      fun GongGaoCallBack (GongGao : String){}
+
+    fun loadDataError(message : String){};
 
 
 }
+

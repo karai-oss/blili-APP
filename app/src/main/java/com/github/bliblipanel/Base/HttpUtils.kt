@@ -90,9 +90,10 @@ suspend fun getRequest(
     val userInfoJson = getRequestExetucor(url, session).execute()
 
     if (userInfoJson.code === 200) {
-        return Gson().fromJson(userInfoJson.body?.let {
-            it.string()
-        } ,clazz)
+        userInfoJson.body?.let {
+            return Gson().fromJson(it.string(),clazz)
+        }
+
     }
     return null;
 }

@@ -1,6 +1,8 @@
 package com.github.bliblipanel.ui.page.GuildePage
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -35,10 +39,14 @@ class GuidePage {
     @SuppressLint("NotConstructor")
     @Composable
     fun GuidePage(to : (target_page : String) -> Unit) {
+
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-
+            val window = (LocalView.current.context as Activity).window
+            window.statusBarColor = Color.White.copy(0f).toArgb()
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             Image(
                 painter = painterResource(id = R.drawable.blbl),
                 modifier = Modifier
